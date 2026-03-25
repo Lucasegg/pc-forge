@@ -6,7 +6,7 @@ const App = (() => {
 
   // ─── State ───────────────────────────────────────────────
   let state = {
-    view: 'home',           // home | wizard | result | notebook | manual | saved | compare
+    view: 'home',           // home | wizard | result | notebook | manual | saved | compare | contact | faq
     wizardStep: 1,
     totalSteps: 4,
     answers: {},
@@ -16,11 +16,22 @@ const App = (() => {
     compareBuilds: [],
     manualSelections: {},
     darkMode: true,
-    userLevel: 'beginner'   // beginner | advanced
+    userLevel: 'beginner',  // beginner | advanced
+    lastPriceUpdate: null
   };
 
   // ─── Init ─────────────────────────────────────────────────
   function init() {
+    // Apply dynamic prices before anything else
+    state.lastPriceUpdate = PriceEngine.applyToComponents();
+
+    // Schedule hourly price refresh
+    setInterval(() => {
+      state.lastPriceUpdate = PriceEngine.forceRefresh();
+      if (state.view === 'home' || state.view === 'manual') render();
+      updatePriceBanner();
+    }, 60 * 60 * 1000);
+
     state.savedBuilds = BuildEngine.Storage.getAll();
 
     // Check for shared build in URL
@@ -58,9 +69,12 @@ const App = (() => {
       case 'manual':   app.innerHTML = renderManual(); break;
       case 'saved':    app.innerHTML = renderSaved(); break;
       case 'compare':  app.innerHTML = renderCompare(); break;
+      case 'contact':  app.innerHTML = renderContact(); break;
+      case 'faq':      app.innerHTML = renderFAQ(); break;
       default:         app.innerHTML = renderHome();
     }
     bindViewEvents();
+    updatePriceBanner();
   }
 
   // ─── HOME ────────────────────────────────────────────────
@@ -908,6 +922,197 @@ const App = (() => {
     </div>`;
   }
 
+  // ─── CONTACT PAGE ────────────────────────────────────────
+  function renderContact() {
+    return `
+    <div class="page contact-page">
+      <div class="page-header">
+        <button class="btn btn-ghost" id="btn-back-home">← Início</button>
+        <h2>✉️ Fale Conosco</h2>
+      </div>
+
+      <div class="contact-layout">
+        <div class="contact-form-wrap">
+          <div class="contact-intro">
+            <p>Tem dúvidas, sugestões ou encontrou algum problema? Envie sua mensagem e responderei em breve.</p>
+          </div>
+
+          <form class="contact-form" id="contact-form"
+                action="https://formspree.io/f/xpwzqnjp"
+                method="POST">
+
+            <input type="hidden" name="_subject" value="PC Forge — Nova mensagem de contato" />
+            <input type="hidden" name="_next" value="" />
+
+            <div class="form-group">
+              <label for="contact-name">Seu nome *</label>
+              <input type="text" id="contact-name" name="name"
+                     placeholder="Ex: João Silva" required />
+            </div>
+
+            <div class="form-group">
+              <label for="contact-email">Seu e-mail *</label>
+              <input type="email" id="contact-email" name="email"
+                     placeholder="seu@email.com" required />
+            </div>
+
+            <div class="form-group">
+              <label for="contact-subject">Assunto *</label>
+              <select id="contact-subject" name="subject" required>
+                <option value="">— Selecione —</option>
+                <option value="Dúvida sobre montagem">Dúvida sobre montagem</option>
+                <option value="Sugestão de melhoria">Sugestão de melhoria</option>
+                <option value="Erro ou bug no sistema">Erro ou bug no sistema</option>
+                <option value="Componente desatualizado">Componente desatualizado</option>
+                <option value="Parceria ou negócio">Parceria ou negócio</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="contact-msg">Mensagem *</label>
+              <textarea id="contact-msg" name="message" rows="5"
+                        placeholder="Escreva sua mensagem aqui..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg full-width" id="btn-contact-submit">
+              📨 Enviar Mensagem
+            </button>
+
+            <div id="contact-feedback" class="contact-feedback" style="display:none"></div>
+          </form>
+        </div>
+
+        <div class="contact-info">
+          <div class="contact-card">
+            <div class="contact-card-icon">⚙️</div>
+            <h3>PC Forge</h3>
+            <p>Assistente inteligente de montagem de PCs para todos os níveis.</p>
+          </div>
+          <div class="contact-card">
+            <div class="contact-card-icon">👤</div>
+            <h3>Criador</h3>
+            <p>Lucas Gomes<br>Brasil · 2026</p>
+          </div>
+          <div class="contact-card">
+            <div class="contact-card-icon">⏱️</div>
+            <h3>Tempo de resposta</h3>
+            <p>Respondemos em até <strong>48 horas</strong> nos dias úteis.</p>
+          </div>
+          <div class="contact-card">
+            <div class="contact-card-icon">💡</div>
+            <h3>Antes de enviar</h3>
+            <p>Confira a nossa <button class="btn-link" id="btn-go-faq">página de FAQ</button> — sua dúvida pode já estar respondida!</p>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ─── FAQ PAGE ─────────────────────────────────────────────
+  function renderFAQ() {
+    const faqs = [
+      {
+        cat: '🖥️ Sobre o PC Forge',
+        items: [
+          { q: 'O PC Forge é gratuito?', a: 'Sim, 100% gratuito e sem necessidade de cadastro. Basta acessar o site e começar a montar.' },
+          { q: 'Os preços são reais?', a: 'Os preços são estimativas de mercado baseadas em valores médios praticados no Brasil, atualizados automaticamente a cada hora. Podem variar conforme o vendedor, região e promoções do dia. Sempre consulte o preço final na loja antes de comprar.' },
+          { q: 'Com que frequência os preços são atualizados?', a: 'Os preços são recalculados automaticamente a cada 1 hora, refletindo as variações do dólar e do mercado de hardware.' },
+          { q: 'Posso usar o PC Forge no celular?', a: 'Sim! O PC Forge foi desenvolvido com design responsivo e funciona em smartphones, tablets e computadores.' },
+          { q: 'Meus builds salvos ficam guardados para sempre?', a: 'Os builds são salvos no armazenamento local do seu navegador. Eles permanecem enquanto você não limpar os dados do navegador ou acessar de outro dispositivo.' },
+        ]
+      },
+      {
+        cat: '🔧 Montagem de PCs',
+        items: [
+          { q: 'Qual a diferença entre PC Gamer e PC de Escritório?', a: 'O PC Gamer prioriza GPU (placa de vídeo) poderosa para rodar jogos em alta resolução e FPS elevado. O PC de Escritório foca em CPU eficiente, mais RAM e armazenamento rápido para multitarefa e softwares de produtividade.' },
+          { q: 'Preciso de placa de vídeo dedicada para trabalho?', a: 'Depende. Para uso básico (Office, e-mails, reuniões), o gráfico integrado do processador é suficiente. Para edição de vídeo, renderização 3D ou Power BI com grandes bases de dados, uma GPU dedicada acelera muito o trabalho.' },
+          { q: 'Qual a diferença entre DDR4 e DDR5?', a: 'DDR5 é a geração mais nova de memória RAM, com maior velocidade e largura de banda. Porém, exige placa-mãe e processador compatíveis (Intel 12ª gen+ ou AMD AM5). DDR4 ainda é excelente e mais barata.' },
+          { q: 'NVMe é muito melhor que SSD SATA?', a: 'Sim, de 5 a 7 vezes mais rápido em leitura/escrita. Na prática, o sistema operacional e os jogos carregam significativamente mais rápido. Para o mesmo preço, prefira sempre NVMe M.2.' },
+          { q: 'Quantos watts de fonte eu preciso?', a: 'O PC Forge calcula isso automaticamente. A regra geral é: some o TDP do CPU + GPU e multiplique por 1.5 para ter margem de segurança. Nunca use uma fonte no limite — isso reduz a vida útil.' },
+          { q: 'Posso colocar qualquer RAM em qualquer placa-mãe?', a: 'Não. Você precisa verificar: (1) tipo: DDR4 ou DDR5, (2) velocidade suportada, (3) número de slots disponíveis. O PC Forge verifica tudo isso automaticamente no check de compatibilidade.' },
+        ]
+      },
+      {
+        cat: '💰 Orçamento e Compras',
+        items: [
+          { q: 'Onde comprar os componentes?', a: 'No Brasil, as principais lojas confiáveis são: Kabum, Pichau, Terabyteshop, Amazon Brasil e Mercado Livre (vendedores oficiais). Compare sempre os preços antes de comprar.' },
+          { q: 'Vale a pena comprar componentes importados?', a: 'Pode ser mais barato em alguns casos, mas considere: imposto de importação (60% para pessoa física), risco de produto sem garantia no Brasil e dificuldade de troca em caso de defeito.' },
+          { q: 'Qual a peça que mais impacta o desempenho em jogos?', a: 'A GPU (placa de vídeo) é responsável por ~70% do desempenho em jogos. Invista mais nela do que no CPU se o objetivo principal for gaming.' },
+          { q: 'Existe uma configuração mínima para trabalho home office?', a: 'Para trabalho básico (Office, Teams, navegação): Intel i3 ou Ryzen 3, 8GB RAM, SSD 240GB. Para algo mais confortável: i5/Ryzen 5, 16GB RAM, SSD 500GB NVMe.' },
+        ]
+      },
+      {
+        cat: '🚀 Performance e Upgrades',
+        items: [
+          { q: 'O que é gargalo (bottleneck)?', a: 'Gargalo ocorre quando um componente limita o desempenho de outro. Exemplo: uma GPU RTX 4090 com um CPU i3 — o CPU não consegue alimentar a GPU com dados suficientemente rápido, desperdiçando o potencial da placa de vídeo.' },
+          { q: 'Vale a pena overclock?', a: 'Para CPUs desbloqueados (Intel K ou AMD X) com refrigeração adequada, o overclock pode dar 5-15% de ganho de performance sem custo extra. Mas exige cuidados com temperatura e estabilidade.' },
+          { q: 'Qual upgrade tem mais impacto por real gasto?', a: 'Em ordem de impacto: (1) Trocar HDD por SSD NVMe, (2) Adicionar mais RAM (8→16GB), (3) Upgrade de GPU, (4) Upgrade de CPU.' },
+          { q: 'Meu PC esquenta muito. O que fazer?', a: 'Verifique: (1) limpeza de poeira no cooler e filtros, (2) troca da pasta térmica (a cada 2-3 anos), (3) airflow do gabinete (entradas na frente, saída atrás/topo), (4) cooler inadequado para o TDP do CPU.' },
+        ]
+      },
+      {
+        cat: '💻 Notebooks',
+        items: [
+          { q: 'Vale mais a pena notebook ou PC desktop?', a: 'Desktop: mais potente por real, fácil de upgradear, melhor refrigeração. Notebook: portabilidade, ocupa menos espaço, tudo em um. Se não precisa carregar, desktop sempre entrega mais performance pelo mesmo investimento.' },
+          { q: 'Por que notebooks gamers têm bateria tão curta?', a: 'GPUs dedicadas consomem muita energia. Em jogos, um notebook gamer pode consumir 100-200W, esgotando a bateria em 1-3 horas. Sempre use tomada para gaming.' },
+          { q: 'Posso colocar mais RAM em um notebook?', a: 'Depende do modelo. Muitos notebooks modernos têm RAM soldada na placa (não upgradável). Verifique as especificações antes de comprar se isso for importante para você.' },
+        ]
+      }
+    ];
+
+    return `
+    <div class="page faq-page">
+      <div class="page-header">
+        <button class="btn btn-ghost" id="btn-back-home">← Início</button>
+        <h2>❓ Perguntas Frequentes</h2>
+      </div>
+
+      <div class="faq-search-wrap">
+        <input type="text" id="faq-search" class="faq-search"
+               placeholder="🔍 Buscar pergunta..." />
+      </div>
+
+      <div class="faq-list" id="faq-list">
+        ${faqs.map(section => `
+          <div class="faq-section">
+            <h3 class="faq-cat">${section.cat}</h3>
+            ${section.items.map((item, i) => `
+              <div class="faq-item" data-q="${item.q.toLowerCase()}">
+                <button class="faq-question" data-faq="${section.cat}-${i}">
+                  <span>${item.q}</span>
+                  <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer" id="faq-${section.cat}-${i}">
+                  <p>${item.a}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="faq-footer">
+        <p>Não encontrou sua resposta?</p>
+        <button class="btn btn-primary" id="btn-go-contact">✉️ Fale Conosco</button>
+      </div>
+    </div>`;
+  }
+
+  // ─── Price Banner ─────────────────────────────────────────
+  function updatePriceBanner() {
+    const banner = document.getElementById('price-banner');
+    if (!banner) return;
+    const d = state.lastPriceUpdate || PriceEngine.getLastUpdated();
+    const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    banner.innerHTML = `
+      <span class="pb-dot"></span>
+      Preços estimados atualizados às <strong>${time}</strong> · Atualização automática a cada hora
+      <button class="pb-refresh" id="btn-refresh-prices" title="Atualizar agora">↻</button>
+    `;
+    banner.style.display = 'flex';
+  }
+
   // ─── Utility ─────────────────────────────────────────────
   function formatPrice(price) {
     return price > 0
@@ -922,7 +1127,66 @@ const App = (() => {
   }
 
   function bindViewEvents() {
-    // Select all comp-select dropdowns in manual mode need live update
+    // FAQ accordion
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = 'faq-' + btn.dataset.faq;
+        const answer = document.getElementById(id);
+        const isOpen = answer.classList.contains('open');
+        document.querySelectorAll('.faq-answer.open').forEach(a => a.classList.remove('open'));
+        document.querySelectorAll('.faq-question.open').forEach(b => b.classList.remove('open'));
+        if (!isOpen) { answer.classList.add('open'); btn.classList.add('open'); }
+      });
+    });
+
+    // FAQ search
+    const faqSearch = document.getElementById('faq-search');
+    if (faqSearch) {
+      faqSearch.addEventListener('input', () => {
+        const q = faqSearch.value.toLowerCase();
+        document.querySelectorAll('.faq-item').forEach(item => {
+          item.style.display = item.dataset.q.includes(q) ? '' : 'none';
+        });
+        document.querySelectorAll('.faq-section').forEach(sec => {
+          const visible = [...sec.querySelectorAll('.faq-item')].some(i => i.style.display !== 'none');
+          sec.style.display = visible ? '' : 'none';
+        });
+      });
+    }
+
+    // Contact form AJAX submission
+    const form = document.getElementById('contact-form');
+    if (form) {
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-contact-submit');
+        const fb  = document.getElementById('contact-feedback');
+        btn.disabled = true;
+        btn.textContent = '⏳ Enviando...';
+        try {
+          const res = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { Accept: 'application/json' }
+          });
+          if (res.ok) {
+            form.reset();
+            fb.style.display = 'block';
+            fb.className = 'contact-feedback success';
+            fb.innerHTML = '✅ Mensagem enviada com sucesso! Responderemos em até 48h.';
+            btn.textContent = '✅ Enviado';
+          } else {
+            throw new Error();
+          }
+        } catch {
+          fb.style.display = 'block';
+          fb.className = 'contact-feedback error';
+          fb.innerHTML = '❌ Erro ao enviar. Tente novamente ou envie direto para <strong>lucas.gomes.rosendo@gmail.com</strong>';
+          btn.disabled = false;
+          btn.textContent = '📨 Enviar Mensagem';
+        }
+      });
+    }
   }
 
   function handleClick(e) {
@@ -955,6 +1219,19 @@ const App = (() => {
         return;
       case 'btn-back-home':
         navigate('home');
+        return;
+      case 'btn-go-contact':
+      case 'btn-contact-nav':
+        navigate('contact');
+        return;
+      case 'btn-go-faq':
+      case 'btn-faq-nav':
+        navigate('faq');
+        return;
+      case 'btn-refresh-prices':
+        state.lastPriceUpdate = PriceEngine.forceRefresh();
+        showToast('Preços atualizados!');
+        updatePriceBanner();
         return;
       case 'btn-prev-step':
         if (state.wizardStep > 1) { state.wizardStep--; render(); }

@@ -32,7 +32,9 @@
       <div class="nav-links">
         <button class="nav-btn" id="nav-wizard">🚀 Montar</button>
         <button class="nav-btn" id="nav-manual">⚙️ Avançado</button>
-        <button class="nav-btn" id="nav-saved">💾 Meus Builds</button>
+        <button class="nav-btn" id="nav-saved">💾 Builds</button>
+        <button class="nav-btn" id="nav-faq">❓ FAQ</button>
+        <button class="nav-btn" id="nav-contact">✉️ Contato</button>
       </div>
       <button class="nav-btn nav-menu" id="nav-toggle" aria-label="Menu">☰</button>
     </div>
@@ -40,8 +42,13 @@
       <button class="nav-btn" id="nav-wizard-m">🚀 Montar PC</button>
       <button class="nav-btn" id="nav-manual-m">⚙️ Modo Avançado</button>
       <button class="nav-btn" id="nav-saved-m">💾 Meus Builds</button>
+      <button class="nav-btn" id="nav-faq-m">❓ FAQ</button>
+      <button class="nav-btn" id="nav-contact-m">✉️ Contato</button>
     </div>
   </nav>
+
+  <!-- Price banner (shown globally) -->
+  <div id="price-banner" class="price-banner" style="display:none"></div>
 
   <!-- App Container -->
   <main id="app">
@@ -103,8 +110,9 @@
       // Derive target btn id from map
       const map = {
         'nav-home': 'btn-back-home', 'nav-wizard': 'btn-start', 'nav-manual': 'btn-manual',
-        'nav-saved': 'btn-all-saved', 'nav-wizard-m': 'btn-start',
-        'nav-manual-m': 'btn-manual', 'nav-saved-m': 'btn-all-saved'
+        'nav-saved': 'btn-all-saved', 'nav-faq': 'btn-faq-nav', 'nav-contact': 'btn-contact-nav',
+        'nav-wizard-m': 'btn-start', 'nav-manual-m': 'btn-manual', 'nav-saved-m': 'btn-all-saved',
+        'nav-faq-m': 'btn-faq-nav', 'nav-contact-m': 'btn-contact-nav'
       };
       el.addEventListener('click', () => navTo(map[id]));
     });

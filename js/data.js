@@ -650,3 +650,85 @@ function getAlternatives(type, currentId, socket = null) {
     .sort((a, b) => a.price - b.price)[0] || null;
   return { cheaper, powerful };
 }
+
+// ─── Dynamic Pricing System ──────────────────────────────────
+// Preços base são ajustados ±4% a cada hora simulando variações
+// reais de mercado (dólar, estoque, promoções).
+
+const PriceEngine = (() => {
+  const STORAGE_KEY = 'pcforge_prices';
+  const UPDATE_INTERVAL_MS = 60 * 60 * 1000; // 1 hora
+
+  // Semente baseada na hora atual → mesma hora = mesmos preços
+  function seededRandom(seed) {
+    const x = Math.sin(seed + 1) * 43758.5453123;
+    return x - Math.floor(x);
+  }
+
+  function getHourSeed() {
+    const now = new Date();
+    return now.getFullYear() * 1000000 +
+           (now.getMonth() + 1) * 10000 +
+           now.getDate() * 100 +
+           now.getHours();
+  }
+
+  function generatePrices() {
+    const seed = getHourSeed();
+    const prices = {};
+    let idx = 0;
+
+    ['cpu','gpu','motherboard','ram','storage','psu','case','cooling'].forEach(type => {
+      prices[type] = {};
+      COMPONENTS[type].forEach(comp => {
+        if (comp.price === 0) { prices[type][comp.id] = 0; return; }
+        const r = seededRandom(seed + idx++);
+        const variation = 1 + (r - 0.5) * 0.08; // ±4%
+        prices[type][comp.id] = Math.round(comp.price * variation / 10) * 10;
+      });
+    });
+
+    const updatedAt = new Date().toISOString();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ prices, updatedAt, seed }));
+    return { prices, updatedAt };
+  }
+
+  function load() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (!saved) return generatePrices();
+      const age = Date.now() - new Date(saved.updatedAt).getTime();
+      if (age > UPDATE_INTERVAL_MS || saved.seed !== getHourSeed()) {
+        return generatePrices();
+      }
+      return saved;
+    } catch { return generatePrices(); }
+  }
+
+  function applyToComponents() {
+    const { prices, updatedAt } = load();
+    ['cpu','gpu','motherboard','ram','storage','psu','case','cooling'].forEach(type => {
+      COMPONENTS[type].forEach(comp => {
+        if (prices[type] && prices[type][comp.id] !== undefined) {
+          comp._basePrice = comp._basePrice || comp.price;
+          comp.price = prices[type][comp.id];
+        }
+      });
+    });
+    return new Date(updatedAt);
+  }
+
+  function getLastUpdated() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      return saved ? new Date(saved.updatedAt) : new Date();
+    } catch { return new Date(); }
+  }
+
+  function forceRefresh() {
+    localStorage.removeItem(STORAGE_KEY);
+    return applyToComponents();
+  }
+
+  return { applyToComponents, getLastUpdated, forceRefresh };
+})();
