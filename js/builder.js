@@ -262,26 +262,6 @@ const BuildEngine = (() => {
            }, candidates[0]);
   }
 
-  // ─── Storage (LocalStorage) ──────────────────────────────
-  const Storage = {
-    save(build) {
-      const builds = this.getAll();
-      const existing = builds.findIndex(b => b.id === build.id);
-      if (existing >= 0) builds[existing] = build;
-      else builds.unshift(build);
-      localStorage.setItem('pcforge_builds', JSON.stringify(builds.slice(0, 20)));
-    },
-    getAll() {
-      try { return JSON.parse(localStorage.getItem('pcforge_builds') || '[]'); }
-      catch { return []; }
-    },
-    delete(id) {
-      const builds = this.getAll().filter(b => b.id !== id);
-      localStorage.setItem('pcforge_builds', JSON.stringify(builds));
-    },
-    clear() { localStorage.removeItem('pcforge_builds'); }
-  };
-
   // ─── Share build (encode to URL) ────────────────────────
   function shareBuild(build) {
     const data = {
@@ -311,7 +291,6 @@ const BuildEngine = (() => {
     calcPowerUsage,
     calcPerformance,
     detectBottlenecks,
-    Storage,
     shareBuild,
     loadSharedBuild,
     getComponentAlternatives

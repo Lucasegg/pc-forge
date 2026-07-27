@@ -156,11 +156,6 @@ small { font-size: .8rem; color: var(--text3); }
   color: var(--accent);
   background: rgba(108,99,255,0.08);
 }
-.btn-outline.saved {
-  border-color: var(--accent3);
-  color: var(--accent3);
-}
-
 .btn-pdf {
   background: linear-gradient(135deg, #00a86b, #00c98b);
   border: 1px solid rgba(0, 255, 170, .35);
@@ -409,10 +404,6 @@ small { font-size: .8rem; color: var(--text3); }
 
 .feature-card h3 { font-size: 1rem; margin-bottom: .4rem; }
 .feature-card p  { font-size: .88rem; }
-
-/* ─── Saved Preview ─────────────────────────────────────── */
-.saved-preview-section { margin: 3rem 0; }
-.builds-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
 
 /* ─── WIZARD ────────────────────────────────────────────── */
 .wizard-page { max-width: 800px; }
@@ -1119,109 +1110,6 @@ small { font-size: .8rem; color: var(--text3); }
 }
 .compat-mini-item.ok    { background: rgba(0,255,136,.06); color: var(--accent3); }
 .compat-mini-item.issue { background: rgba(255,170,0,.08); color: var(--warn); }
-
-/* ─── SAVED ──────────────────────────────────────────────── */
-.saved-page { max-width: 1100px; }
-
-.builds-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.2rem;
-  margin-bottom: 2rem;
-}
-
-.saved-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.2rem;
-  transition: all var(--transition);
-  cursor: default;
-}
-
-.saved-card:hover { border-color: var(--border2); }
-.saved-card.compact { padding: 1rem; }
-
-.saved-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: .8rem;
-  gap: .8rem;
-}
-
-.saved-card-name { font-size: .95rem; font-weight: 700; }
-.saved-card-date { font-size: .75rem; color: var(--text3); margin-top: .15rem; }
-.saved-card-price { font-size: 1.1rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
-
-.saved-card-comps {
-  display: flex;
-  flex-direction: column;
-  gap: .2rem;
-  margin-bottom: .8rem;
-}
-.saved-card-comps span { font-size: .8rem; color: var(--text2); }
-
-.saved-card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: .5rem;
-}
-
-.saved-actions { display: flex; gap: .4rem; }
-
-.btn-compare-add.active { border-color: var(--accent2); color: var(--accent2); }
-
-.compare-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-/* ─── COMPARE ───────────────────────────────────────────── */
-.compare-page { max-width: 1100px; }
-
-.compare-table-wrap { overflow-x: auto; margin-bottom: 2rem; }
-
-.compare-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: .9rem;
-}
-
-.compare-table th, .compare-table td {
-  padding: .8rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-
-.compare-table th {
-  background: var(--card);
-  font-weight: 700;
-  color: var(--accent);
-  font-size: .8rem;
-  text-transform: uppercase;
-  letter-spacing: .04em;
-}
-
-.compare-table .compare-label {
-  background: var(--card2);
-  font-weight: 600;
-  color: var(--text2);
-  white-space: nowrap;
-}
-
-.compare-table tr:hover td { background: rgba(255,255,255,.01); }
-
-.compare-footer { display: flex; justify-content: flex-start; padding-top: 1.5rem; }
 
 /* ─── FAQ ───────────────────────────────────────────────── */
 .faq-page { max-width: 950px; }
