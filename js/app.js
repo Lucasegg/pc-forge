@@ -49,6 +49,7 @@ const App = (() => {
 
     render();
     bindGlobalEvents();
+    ActivityMonitor.trackPage('home');
   }
 
   // ─── Navigation ──────────────────────────────────────────
@@ -56,6 +57,14 @@ const App = (() => {
     state.view = view;
     Object.assign(state, extra);
     render();
+    ActivityMonitor.trackPage(
+      view,
+      view === 'manual' ? 'avancado' : view === 'notebook' ? 'notebook' : '',
+      view === 'policy' ? state.activePolicy : ''
+    );
+    if (view === 'contact') {
+      ActivityMonitor.track('contact_opened', { page: 'contact' });
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -1042,6 +1051,10 @@ const App = (() => {
             <p>Não exigimos conta, login ou senha. A montagem da configuração acontece no seu navegador e não é armazenada em uma conta no PCForge.</p>
             <p>Usamos o armazenamento local do navegador somente para o cache técnico de preços estimados. Uma marcação temporária de sessão ajuda a evitar o envio repetido do formulário de contato.</p>
           `],
+          ['Métricas anônimas de uso', `
+            <p>Registramos eventos técnicos e agregados, como páginas acessadas, montagens iniciadas e concluídas, downloads de PDF, compartilhamentos, categoria do dispositivo e erros. Essas métricas ajudam a acompanhar e melhorar a ferramenta.</p>
+            <p>O monitor não cria identificador de usuário, não usa cookies de rastreamento e não registra endereço IP, nome, e-mail, mensagem de contato ou a configuração completa montada. Os eventos são armazenados em uma planilha privada do Google e resumidos em relatórios administrativos.</p>
+          `],
           ['Formulário de contato', `
             <p>Ao enviar uma mensagem, você fornece voluntariamente nome, e-mail, assunto e conteúdo. Esses dados são enviados pelo serviço FormSubmit para que Lucas Gomes possa responder à solicitação. Não vendemos seus dados pessoais.</p>
           `],
@@ -1049,7 +1062,7 @@ const App = (() => {
             <p>O PDF é gerado no seu dispositivo. Ao usar “Compartilhar”, a configuração é representada no link; qualquer pessoa que receber esse endereço poderá visualizar as peças incluídas nele.</p>
           `],
           ['Serviços externos', `
-            <p>O site é hospedado no GitHub Pages, usa o jsDelivr para carregar a biblioteca de geração de PDF quando necessário e o FormSubmit no formulário. O LinkedIn somente é acessado quando você clica no link do criador.</p>
+            <p>O site é hospedado no GitHub Pages, usa o jsDelivr para carregar a biblioteca de geração de PDF quando necessário, o FormSubmit no formulário e Google Apps Script/Sheets para métricas anônimas. O LinkedIn somente é acessado quando você clica no link do criador.</p>
           `],
           ['Suas escolhas', `
             <p>Você pode apagar os dados locais nas configurações do navegador. Para dúvidas sobre privacidade, use a página de Contato.</p>
@@ -1262,10 +1275,12 @@ const App = (() => {
             form.reset();
             showFeedback('✅ Mensagem enviada! Se este for o primeiro contato, confirme a ativação que chegará no e-mail do responsável.', 'success');
             btn.textContent = '✅ Enviado';
+            ActivityMonitor.track('contact_submitted', { page: 'contact' });
           } else {
             throw new Error();
           }
         } catch {
+          ActivityMonitor.track('application_error', { page: 'contact', detail: 'contact_submit' });
           showFeedback('❌ Não foi possível enviar. Tente novamente ou escreva para lucas.gomes.rosendo@gmail.com.', 'error');
           btn.disabled = false;
           btn.textContent = '📨 Enviar Mensagem';
@@ -1299,10 +1314,12 @@ const App = (() => {
       case 'btn-start':
         state.answers = {};
         state.wizardStep = 1;
+        ActivityMonitor.track('build_started', { page: 'wizard', mode: 'guiado' });
         navigate('wizard');
         return;
       case 'btn-manual':
         state.manualSelections = {};
+        ActivityMonitor.track('build_started', { page: 'manual', mode: 'avancado' });
         navigate('manual');
         return;
       case 'btn-back-home':
@@ -1330,18 +1347,19 @@ const App = (() => {
         return;
       case 'btn-download-pdf':
         if (state.currentBuild) {
-          await downloadPDF(t, () => PDFExporter.exportBuild(state.currentBuild));
+          await downloadPDF(t, () => PDFExporter.exportBuild(state.currentBuild), 'build');
         }
         return;
       case 'btn-download-notebook-pdf':
         if (state.currentNotebook) {
-          await downloadPDF(t, () => PDFExporter.exportNotebook(state.currentNotebook));
+          await downloadPDF(t, () => PDFExporter.exportNotebook(state.currentNotebook), 'notebook');
         }
         return;
       case 'btn-share-build':
         if (state.currentBuild) {
           const url = BuildEngine.shareBuild(state.currentBuild);
           navigator.clipboard?.writeText(url).then(() => showToast('Link copiado!')).catch(() => showToast(url, 6000));
+          ActivityMonitor.track('build_shared', { page: 'result', detail: 'link' });
         }
         return;
       case 'btn-new-build':
@@ -1411,6 +1429,7 @@ const App = (() => {
     if (deviceType === 'notebook') {
       const nb = BuildEngine.getNotebookRecommendation({ useType, intensity });
       state.currentNotebook = nb;
+      ActivityMonitor.track('build_completed', { page: 'notebook', mode: 'notebook' });
       navigate('notebook');
     } else {
       const build = BuildEngine.buildFromPreset({ deviceType, useType, intensity });
@@ -1419,6 +1438,7 @@ const App = (() => {
         return;
       }
       state.currentBuild = build;
+      ActivityMonitor.track('build_completed', { page: 'result', mode: 'guiado' });
       navigate('result');
     }
   }
@@ -1426,6 +1446,7 @@ const App = (() => {
   function buildManual() {
     const build = BuildEngine.buildManual(state.manualSelections);
     state.currentBuild = build;
+    ActivityMonitor.track('build_completed', { page: 'result', mode: 'avancado' });
     navigate('result');
   }
 
@@ -1437,15 +1458,24 @@ const App = (() => {
     });
   }
 
-  async function downloadPDF(button, exporter) {
+  async function downloadPDF(button, exporter, documentType) {
     const originalText = button.textContent;
     button.disabled = true;
     button.textContent = '⏳ Gerando PDF...';
     try {
       await exporter();
       showToast('PDF baixado com sucesso!');
+      ActivityMonitor.track('pdf_downloaded', {
+        page: state.view,
+        mode: state.view === 'notebook' ? 'notebook' : '',
+        detail: documentType
+      });
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
+      ActivityMonitor.track('application_error', {
+        page: state.view,
+        detail: 'pdf_export'
+      });
       showToast('Não foi possível gerar o PDF. Verifique sua conexão e tente novamente.', 5000);
     } finally {
       button.disabled = false;
