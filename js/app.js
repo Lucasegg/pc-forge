@@ -308,6 +308,7 @@ const App = (() => {
           <button class="btn btn-outline btn-sm ${isSaved ? 'saved' : ''}" id="btn-save-build">
             ${isSaved ? '✅ Salvo' : '💾 Salvar'}
           </button>
+          <button class="btn btn-pdf btn-sm" id="btn-download-pdf">📄 Baixar PDF</button>
           <button class="btn btn-outline btn-sm" id="btn-share-build">🔗 Compartilhar</button>
           <button class="btn btn-outline btn-sm" id="btn-new-build">🔄 Novo Build</button>
         </div>
@@ -614,7 +615,10 @@ const App = (() => {
       <div class="result-header">
         <button class="btn btn-ghost" id="btn-back-home">← Início</button>
         <h2>💻 Notebook Recomendado</h2>
-        <button class="btn btn-outline btn-sm" id="btn-new-build">🔄 Nova Busca</button>
+        <div class="result-actions-top">
+          <button class="btn btn-pdf btn-sm" id="btn-download-notebook-pdf">📄 Baixar PDF</button>
+          <button class="btn btn-outline btn-sm" id="btn-new-build">🔄 Nova Busca</button>
+        </div>
       </div>
 
       <div class="nb-main-card">
@@ -1189,7 +1193,7 @@ const App = (() => {
     }
   }
 
-  function handleClick(e) {
+  async function handleClick(e) {
     const t = e.target.closest('[id], [data-answer], [data-comp], .alt-btn, .btn-load, .btn-delete, [data-nb-select], [data-id]');
     if (!t) return;
 
@@ -1245,6 +1249,16 @@ const App = (() => {
           BuildEngine.Storage.save(state.currentBuild);
           state.savedBuilds = BuildEngine.Storage.getAll();
           render();
+        }
+        return;
+      case 'btn-download-pdf':
+        if (state.currentBuild) {
+          await downloadPDF(t, () => PDFExporter.exportBuild(state.currentBuild));
+        }
+        return;
+      case 'btn-download-notebook-pdf':
+        if (state.currentNotebook) {
+          await downloadPDF(t, () => PDFExporter.exportNotebook(state.currentNotebook));
         }
         return;
       case 'btn-share-build':
@@ -1413,6 +1427,22 @@ const App = (() => {
     Object.entries(build.components).forEach(([key, comp]) => {
       if (comp) state.manualSelections[key] = comp.id;
     });
+  }
+
+  async function downloadPDF(button, exporter) {
+    const originalText = button.textContent;
+    button.disabled = true;
+    button.textContent = '⏳ Gerando PDF...';
+    try {
+      await exporter();
+      showToast('PDF baixado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      showToast('Não foi possível gerar o PDF. Verifique sua conexão e tente novamente.', 5000);
+    } finally {
+      button.disabled = false;
+      button.textContent = originalText;
+    }
   }
 
   function showToast(msg, duration = 2500) {

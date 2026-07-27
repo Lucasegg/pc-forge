@@ -161,6 +161,18 @@ small { font-size: .8rem; color: var(--text3); }
   color: var(--accent3);
 }
 
+.btn-pdf {
+  background: linear-gradient(135deg, #00a86b, #00c98b);
+  border: 1px solid rgba(0, 255, 170, .35);
+  color: #06120d;
+  box-shadow: 0 0 18px rgba(0, 201, 139, .18);
+}
+.btn-pdf:hover {
+  background: linear-gradient(135deg, #00bd79, #18dda0);
+  box-shadow: 0 0 24px rgba(0, 201, 139, .32);
+  transform: translateY(-1px);
+}
+
 .btn-ghost {
   background: transparent;
   color: var(--text2);
