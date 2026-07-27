@@ -942,11 +942,17 @@ const App = (() => {
           </div>
 
           <form class="contact-form" id="contact-form"
-                action="https://formspree.io/f/xpwzqnjp"
+                action="https://formsubmit.co/ajax/lucas.gomes.rosendo@gmail.com"
                 method="POST">
 
             <input type="hidden" name="_subject" value="PC Forge — Nova mensagem de contato" />
-            <input type="hidden" name="_next" value="" />
+            <input type="hidden" name="_template" value="table" />
+            <input type="hidden" name="_captcha" value="false" />
+            <div class="contact-honeypot" aria-hidden="true">
+              <label for="contact-website">Não preencha este campo</label>
+              <input type="text" id="contact-website" name="_honey"
+                     tabindex="-1" autocomplete="off" />
+            </div>
 
             <div class="form-group">
               <label for="contact-name">Seu nome *</label>
@@ -1174,10 +1180,12 @@ const App = (() => {
             headers: { Accept: 'application/json' }
           });
           if (res.ok) {
+            const result = await res.json();
+            if (result.success === false) throw new Error(result.message || 'Falha no envio');
             form.reset();
             fb.style.display = 'block';
             fb.className = 'contact-feedback success';
-            fb.innerHTML = '✅ Mensagem enviada com sucesso! Responderemos em até 48h.';
+            fb.innerHTML = '✅ Mensagem enviada! Se este for o primeiro contato, confirme a ativação que chegará no e-mail do responsável.';
             btn.textContent = '✅ Enviado';
           } else {
             throw new Error();
