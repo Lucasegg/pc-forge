@@ -44,9 +44,7 @@ Depois acesse: [http://localhost:3000](http://localhost:3000)
 | 💰 Custo | Preço total e distribuição por componente |
 | 🖥️ Preview visual | Visualização do PC montado com RGB animado |
 | ⚙️ Modo avançado | Seleção manual peça a peça com alertas em tempo real |
-| 💾 Salvar builds | Salva localmente no navegador (até 20 builds) |
 | 📄 Exportar PDF | Baixa a configuração completa, preços, justificativas, compatibilidade e desempenho |
-| 📊 Comparar | Tabela comparativa lado a lado de múltiplos builds |
 | 🔗 Compartilhar | Gera link para compartilhar o build |
 | 💻 Notebooks | Recomendação de notebooks por categoria e intensidade de uso |
 
@@ -66,7 +64,7 @@ Início
   │                                   • Compatibilidade
   │                                   • FPS / Performance
   │                                   • Custo
-  │                                   • Salvar / Compartilhar
+  │                                   • Baixar PDF / Compartilhar
   │
   └── [Modo Avançado] ──► Seleção manual
                                │
@@ -119,4 +117,5 @@ pc-forge/
 - HTML5 · CSS3 · JavaScript (ES2020+)
 - Sem build step; a exportação usa jsPDF 4.2.1 carregado sob demanda
 - Funciona 100% no navegador
-- Dados salvos via `localStorage`
+- Sem conta, login ou armazenamento de builds do usuário
+- `localStorage` usado apenas para o cache técnico das estimativas de preço
