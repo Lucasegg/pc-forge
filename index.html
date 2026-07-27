@@ -81,9 +81,13 @@
       'nav-wizard':   () => { document.getElementById('btn-start')?.click(); },
       'nav-manual':   () => { document.getElementById('btn-manual')?.click(); },
       'nav-saved':    () => { document.getElementById('btn-all-saved')?.click(); },
+      'nav-faq':      () => navTo('btn-faq-nav'),
+      'nav-contact':  () => navTo('btn-contact-nav'),
       'nav-wizard-m': () => { document.getElementById('btn-start')?.click(); closeMenu(); },
       'nav-manual-m': () => { document.getElementById('btn-manual')?.click(); closeMenu(); },
       'nav-saved-m':  () => { document.getElementById('btn-all-saved')?.click(); closeMenu(); },
+      'nav-faq-m':    () => navTo('btn-faq-nav'),
+      'nav-contact-m':() => navTo('btn-contact-nav'),
     };
 
     function closeMenu() {
