@@ -98,21 +98,7 @@ const App = (() => {
         </div>
       </div>
 
-      <aside class="home-notice" aria-labelledby="home-notice-title">
-        <div class="home-notice-icon" aria-hidden="true">💡</div>
-        <div class="home-notice-content">
-          <span class="home-notice-label">Importante</span>
-          <h2 id="home-notice-title">Somos seu assistente de escolha</h2>
-          <p>
-            O PC Forge ajuda você a entender e planejar sua configuração.
-            No momento, não vendemos computadores, notebooks ou componentes.
-            Lojas, profissionais e empresas interessados em colaborar são muito bem-vindos.
-          </p>
-        </div>
-        <button class="btn btn-outline home-notice-action" id="btn-go-contact">
-          🤝 Quero ser parceiro
-        </button>
-      </aside>
+      ${renderPartnershipNotice()}
 
       <div class="features-section">
         <h2 class="section-title">Por que PC Forge?</h2>
@@ -134,6 +120,26 @@ const App = (() => {
         </div>
       </div>
     </div>`;
+  }
+
+  function renderPartnershipNotice(compact = false) {
+    const titleId = compact ? 'result-partnership-title' : 'home-partnership-title';
+    return `
+      <aside class="home-notice ${compact ? 'result-notice' : ''}" aria-labelledby="${titleId}">
+        <div class="home-notice-icon" aria-hidden="true">${compact ? '🤝' : '💡'}</div>
+        <div class="home-notice-content">
+          <span class="home-notice-label">${compact ? 'Um lembrete' : 'Importante'}</span>
+          <h2 id="${titleId}">${compact ? 'Somos um assistente, não uma loja' : 'Somos seu assistente de escolha'}</h2>
+          <p>
+            O PC Forge ajuda você a entender e planejar sua configuração.
+            No momento, não vendemos computadores, notebooks ou componentes.
+            Lojas, profissionais e empresas interessados em colaborar são muito bem-vindos.
+          </p>
+        </div>
+        <button class="btn btn-outline home-notice-action" id="btn-go-contact">
+          🤝 Quero ser parceiro
+        </button>
+      </aside>`;
   }
 
   function renderHeroVisual() {
@@ -398,6 +404,8 @@ const App = (() => {
         <button class="btn btn-outline" id="btn-customize">⚙️ Personalizar Build</button>
         <button class="btn btn-primary" id="btn-new-build-2">🔄 Novo Build</button>
       </div>
+
+      ${renderPartnershipNotice(true)}
     </div>`;
   }
 
@@ -1021,8 +1029,14 @@ const App = (() => {
     const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     banner.innerHTML = `
       <span class="pb-dot"></span>
-      Preços estimados atualizados às <strong>${time}</strong> · Atualização automática a cada hora
-      <button class="pb-refresh" id="btn-refresh-prices" title="Atualizar agora">↻</button>
+      <span class="pb-content">
+        <span class="pb-label">Estimativa de mercado</span>
+        <span class="pb-message">Preços estimados atualizados às <strong>${time}</strong>
+          <span class="pb-separator">·</span> Atualização automática a cada hora
+        </span>
+      </span>
+      <button class="pb-refresh" id="btn-refresh-prices"
+              title="Atualizar estimativas agora" aria-label="Atualizar estimativas agora">↻</button>
     `;
     banner.style.display = 'flex';
   }
