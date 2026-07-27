@@ -6,7 +6,7 @@ const App = (() => {
 
   // ─── State ───────────────────────────────────────────────
   let state = {
-    view: 'home',           // home | wizard | result | notebook | manual | contact | faq
+    view: 'home',           // home | wizard | result | notebook | manual | contact | faq | policy
     wizardStep: 1,
     totalSteps: 4,
     answers: {},
@@ -15,7 +15,8 @@ const App = (() => {
     manualSelections: {},
     darkMode: true,
     userLevel: 'beginner',  // beginner | advanced
-    lastPriceUpdate: null
+    lastPriceUpdate: null,
+    activePolicy: 'privacy'
   };
 
   // ─── Init ─────────────────────────────────────────────────
@@ -69,6 +70,7 @@ const App = (() => {
       case 'manual':   app.innerHTML = renderManual(); break;
       case 'contact':  app.innerHTML = renderContact(); break;
       case 'faq':      app.innerHTML = renderFAQ(); break;
+      case 'policy':   app.innerHTML = renderPolicy(); break;
       default:         app.innerHTML = renderHome();
     }
     bindViewEvents();
@@ -1028,6 +1030,123 @@ const App = (() => {
     </div>`;
   }
 
+  // ─── POLICIES ─────────────────────────────────────────────
+  function renderPolicy() {
+    const policies = {
+      privacy: {
+        icon: '🔐',
+        title: 'Política de Privacidade',
+        intro: 'Esta política explica, de forma simples, quais dados o PCForge utiliza e como você mantém o controle sobre eles.',
+        sections: [
+          ['Dados utilizados', `
+            <p>Não exigimos conta, login ou senha. A montagem da configuração acontece no seu navegador e não é armazenada em uma conta no PCForge.</p>
+            <p>Usamos o armazenamento local do navegador somente para o cache técnico de preços estimados. Uma marcação temporária de sessão ajuda a evitar o envio repetido do formulário de contato.</p>
+          `],
+          ['Formulário de contato', `
+            <p>Ao enviar uma mensagem, você fornece voluntariamente nome, e-mail, assunto e conteúdo. Esses dados são enviados pelo serviço FormSubmit para que Lucas Gomes possa responder à solicitação. Não vendemos seus dados pessoais.</p>
+          `],
+          ['PDF e compartilhamento', `
+            <p>O PDF é gerado no seu dispositivo. Ao usar “Compartilhar”, a configuração é representada no link; qualquer pessoa que receber esse endereço poderá visualizar as peças incluídas nele.</p>
+          `],
+          ['Serviços externos', `
+            <p>O site é hospedado no GitHub Pages, usa o jsDelivr para carregar a biblioteca de geração de PDF quando necessário e o FormSubmit no formulário. O LinkedIn somente é acessado quando você clica no link do criador.</p>
+          `],
+          ['Suas escolhas', `
+            <p>Você pode apagar os dados locais nas configurações do navegador. Para dúvidas sobre privacidade, use a página de Contato.</p>
+          `]
+        ]
+      },
+      terms: {
+        icon: '📜',
+        title: 'Termos de Uso',
+        intro: 'Ao utilizar o PCForge, você concorda com as condições abaixo.',
+        sections: [
+          ['Finalidade do serviço', `
+            <p>O PCForge é um assistente informativo e gratuito. Não vende computadores ou componentes, não processa pagamentos e não atua como loja ou intermediador de compras.</p>
+          `],
+          ['Uso das recomendações', `
+            <p>As configurações servem como ponto de partida. Antes da compra, confirme preços, estoque, dimensões, conectores, BIOS, garantia e especificações com fabricantes e lojas.</p>
+          `],
+          ['Responsabilidade do usuário', `
+            <p>A decisão de compra, instalação e montagem é do usuário. Se não tiver experiência, procure um técnico qualificado. Não utilize o site para fins ilegais, abusivos ou que prejudiquem seu funcionamento.</p>
+          `],
+          ['Disponibilidade e alterações', `
+            <p>Buscamos manter o serviço correto e disponível, mas não garantimos funcionamento contínuo ou ausência total de erros. Recursos, preços estimados e estes termos podem ser atualizados.</p>
+          `],
+          ['Propriedade intelectual', `
+            <p>O conteúdo e a identidade do PCForge pertencem ao projeto e ao seu criador. Marcas e nomes de produtos citados pertencem aos respectivos titulares.</p>
+          `]
+        ]
+      },
+      disclaimer: {
+        icon: '⚠️',
+        title: 'Aviso Legal',
+        intro: 'Informações importantes para interpretar corretamente as recomendações do assistente.',
+        sections: [
+          ['Preços e disponibilidade', `
+            <p>Todos os preços são estimativas e não constituem oferta de venda. Valores, promoções, frete, impostos e estoque podem variar por loja, região e data.</p>
+          `],
+          ['Compatibilidade', `
+            <p>A indicação “Compatibilidade OK” considera as regras disponíveis no site, mas não substitui a documentação oficial. Confirme soquete, chipset, BIOS, memória, fonte, medidas e conectores antes de comprar.</p>
+          `],
+          ['Desempenho e consumo', `
+            <p>Estimativas de desempenho, FPS, temperatura e consumo são referências. O resultado real varia com programas, jogos, resolução, drivers, refrigeração, energia e atualizações.</p>
+          `],
+          ['Compras e montagem', `
+            <p>O PCForge não se responsabiliza por preços praticados por terceiros, decisões de compra, montagem incorreta, incompatibilidades não previstas, perda de dados ou danos a equipamentos.</p>
+          `],
+          ['Marcas e parcerias', `
+            <p>A menção a produtos não significa vínculo ou aprovação de fabricantes. Eventuais conteúdos patrocinados ou parcerias comerciais serão identificados com transparência.</p>
+          `]
+        ]
+      },
+      security: {
+        icon: '🛡️',
+        title: 'Política de Segurança',
+        intro: 'Levamos a segurança do PCForge e de seus usuários a sério.',
+        sections: [
+          ['Como protegemos o site', `
+            <p>O projeto aplica controles de conteúdo no navegador, valida entradas, limita integrações externas, monitora dependências e realiza análises automáticas de código.</p>
+          `],
+          ['Como relatar uma falha', `
+            <p>Se encontrar uma possível vulnerabilidade, não a explore nem publique dados de terceiros. Envie uma descrição clara pela página de Contato para que possamos investigar com responsabilidade.</p>
+          `],
+          ['Boas práticas no relato', `
+            <p>Informe a página afetada, passos para reproduzir e o impacto percebido. Não inclua senhas, documentos pessoais ou outros dados sensíveis. No momento, o projeto não possui programa de recompensa financeira.</p>
+          `],
+          ['Escopo', `
+            <p>Serviços de terceiros, como GitHub Pages, FormSubmit, jsDelivr e LinkedIn, possuem políticas e canais de segurança próprios.</p>
+          `]
+        ]
+      }
+    };
+
+    const policy = policies[state.activePolicy] || policies.privacy;
+    return `
+      <div class="page policy-page">
+        <div class="page-header">
+          <button class="btn btn-ghost" id="btn-back-home">← Início</button>
+          <h2>${policy.icon} ${policy.title}</h2>
+        </div>
+        <div class="policy-hero">
+          <p>${policy.intro}</p>
+          <span>Última atualização: 27 de julho de 2026</span>
+        </div>
+        <article class="policy-content">
+          ${policy.sections.map(([title, body]) => `
+            <section class="policy-section">
+              <h3>${title}</h3>
+              ${body}
+            </section>
+          `).join('')}
+        </article>
+        <div class="policy-help">
+          <div><span aria-hidden="true">💬</span><p><strong>Ficou com alguma dúvida?</strong><br>Estamos à disposição para ajudar.</p></div>
+          <button class="btn btn-primary" id="btn-go-contact">✉️ Fale Conosco</button>
+        </div>
+      </div>`;
+  }
+
   // ─── Price Banner ─────────────────────────────────────────
   function updatePriceBanner() {
     const banner = document.getElementById('price-banner');
@@ -1347,7 +1466,14 @@ const App = (() => {
     toast._timer = setTimeout(() => toast.classList.remove('show'), duration);
   }
 
-  return { init };
+  function openPolicy(policy) {
+    const allowedPolicies = ['privacy', 'terms', 'disclaimer', 'security'];
+    navigate('policy', {
+      activePolicy: allowedPolicies.includes(policy) ? policy : 'privacy'
+    });
+  }
+
+  return { init, openPolicy };
 })();
 
 document.addEventListener('DOMContentLoaded', () => App.init());

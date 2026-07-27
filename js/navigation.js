@@ -51,6 +51,17 @@
     });
   });
 
+  document.querySelectorAll('[data-policy]').forEach(button => {
+    button.addEventListener('click', () => {
+      closeMenu();
+      App.openPolicy(button.dataset.policy);
+    });
+  });
+
+  document.getElementById('footer-contact')?.addEventListener('click', () => {
+    navigateTo('btn-contact-nav');
+  });
+
   document.addEventListener('keydown', event => {
     if (event.ctrlKey && event.key.toLowerCase() === 'b') {
       event.preventDefault();
