@@ -3,6 +3,10 @@
 // ============================================================
 
 const BuildEngine = (() => {
+  const COMPONENT_TYPES = Object.freeze([
+    'cpu', 'gpu', 'motherboard', 'ram', 'storage', 'psu', 'case', 'cooling'
+  ]);
+  const MAX_SHARED_BUILD_LENGTH = 2048;
 
   // ─── Resolve preset key from wizard answers ──────────────
   function resolvePresetKey(answers) {
@@ -225,9 +229,12 @@ const BuildEngine = (() => {
   // ─── Build from manual selections ───────────────────────
   function buildManual(selections) {
     const components = {};
-    ['cpu', 'gpu', 'motherboard', 'ram', 'storage', 'psu', 'case', 'cooling'].forEach(type => {
-      if (selections[type]) {
-        components[type] = getComponentById(type, selections[type]);
+    const safeSelections = selections && typeof selections === 'object' && !Array.isArray(selections)
+      ? selections
+      : {};
+    COMPONENT_TYPES.forEach(type => {
+      if (safeSelections[type]) {
+        components[type] = getComponentById(type, safeSelections[type]);
       }
     });
 
@@ -265,20 +272,47 @@ const BuildEngine = (() => {
   // ─── Share build (encode to URL) ────────────────────────
   function shareBuild(build) {
     const data = {
-      n: build.name,
       c: Object.entries(build.components).reduce((acc, [k, v]) => {
-        if (v) acc[k] = v.id;
+        if (COMPONENT_TYPES.includes(k) && v?.id) acc[k] = v.id;
         return acc;
       }, {})
     };
-    const encoded = btoa(JSON.stringify(data));
+    const encoded = btoa(JSON.stringify(data))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/g, '');
     return `${window.location.origin}${window.location.pathname}?build=${encoded}`;
   }
 
   function loadSharedBuild(encoded) {
     try {
-      const data = JSON.parse(atob(encoded));
-      return buildManual(data.c);
+      if (
+        typeof encoded !== 'string' ||
+        encoded.length === 0 ||
+        encoded.length > MAX_SHARED_BUILD_LENGTH ||
+        !/^[A-Za-z0-9_+/=-]+$/.test(encoded)
+      ) {
+        return null;
+      }
+
+      const base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
+      const decoded = atob(padded);
+      if (decoded.length > MAX_SHARED_BUILD_LENGTH) return null;
+
+      const data = JSON.parse(decoded);
+      if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
+      if (!data.c || typeof data.c !== 'object' || Array.isArray(data.c)) return null;
+
+      const selections = {};
+      for (const type of COMPONENT_TYPES) {
+        const id = data.c[type];
+        if (typeof id !== 'string' || !getComponentById(type, id)) continue;
+        selections[type] = id;
+      }
+
+      if (Object.keys(selections).length === 0) return null;
+      return buildManual(selections);
     } catch { return null; }
   }
 

@@ -632,7 +632,16 @@ const SOFTWARE_COMPAT = {
 
 // ─── Helper Functions ────────────────────────────────────────
 function getComponentById(type, id) {
-  return COMPONENTS[type].find(c => c.id === id);
+  if (
+    typeof type !== 'string' ||
+    typeof id !== 'string' ||
+    !Object.prototype.hasOwnProperty.call(COMPONENTS, type) ||
+    id.length > 64 ||
+    !/^[a-z0-9-]+$/i.test(id)
+  ) {
+    return undefined;
+  }
+  return COMPONENTS[type].find(component => component.id === id);
 }
 
 function getAlternatives(type, currentId, socket = null) {
