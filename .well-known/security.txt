@@ -1,0 +1,5 @@
+Contact: mailto:lucas.gomes.rosendo@gmail.com
+Expires: 2027-07-27T23:59:59Z
+Preferred-Languages: pt-BR, en
+Canonical: https://lucasegg.github.io/pc-forge/.well-known/security.txt
+Policy: https://github.com/Lucasegg/pc-forge/security/policy

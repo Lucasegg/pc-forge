@@ -40,6 +40,10 @@ const App = (() => {
         navigate('result');
         return;
       }
+      params.delete('build');
+      const cleanQuery = params.toString();
+      const cleanUrl = `${window.location.pathname}${cleanQuery ? `?${cleanQuery}` : ''}${window.location.hash}`;
+      window.history.replaceState(null, '', cleanUrl);
     }
 
     render();
@@ -826,7 +830,7 @@ const App = (() => {
 
             <input type="hidden" name="_subject" value="PC Forge — Nova mensagem de contato" />
             <input type="hidden" name="_template" value="table" />
-            <input type="hidden" name="_captcha" value="false" />
+            <input type="hidden" name="_captcha" value="true" />
             <div class="contact-honeypot" aria-hidden="true">
               <label for="contact-website">Não preencha este campo</label>
               <input type="text" id="contact-website" name="_honey"
@@ -836,13 +840,15 @@ const App = (() => {
             <div class="form-group">
               <label for="contact-name">Seu nome *</label>
               <input type="text" id="contact-name" name="name"
-                     placeholder="Ex: João Silva" required />
+                     placeholder="Ex: João Silva" minlength="2" maxlength="80"
+                     autocomplete="name" required />
             </div>
 
             <div class="form-group">
               <label for="contact-email">Seu e-mail *</label>
               <input type="email" id="contact-email" name="email"
-                     placeholder="seu@email.com" required />
+                     placeholder="seu@email.com" maxlength="254"
+                     autocomplete="email" required />
             </div>
 
             <div class="form-group">
@@ -861,7 +867,8 @@ const App = (() => {
             <div class="form-group">
               <label for="contact-msg">Mensagem *</label>
               <textarea id="contact-msg" name="message" rows="5"
-                        placeholder="Escreva sua mensagem aqui..." required></textarea>
+                        placeholder="Escreva sua mensagem aqui..."
+                        minlength="10" maxlength="3000" required></textarea>
             </div>
 
             <button type="submit" class="btn btn-primary btn-lg full-width" id="btn-contact-submit">
@@ -1103,31 +1110,49 @@ const App = (() => {
         e.preventDefault();
         const btn = document.getElementById('btn-contact-submit');
         const fb  = document.getElementById('contact-feedback');
+        const showFeedback = (message, type) => {
+          fb.style.display = 'block';
+          fb.className = `contact-feedback ${type}`;
+          fb.textContent = message;
+        };
+
+        const lastSubmission = Number(sessionStorage.getItem('pcforge_contact_last_submit') || 0);
+        if (Date.now() - lastSubmission < 30000) {
+          showFeedback('Aguarde alguns segundos antes de enviar outra mensagem.', 'error');
+          return;
+        }
+        if (form.dataset.submitting === 'true') return;
+
+        form.dataset.submitting = 'true';
         btn.disabled = true;
         btn.textContent = '⏳ Enviando...';
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 15000);
         try {
           const res = await fetch(form.action, {
             method: 'POST',
             body: new FormData(form),
-            headers: { Accept: 'application/json' }
+            headers: { Accept: 'application/json' },
+            referrerPolicy: 'strict-origin-when-cross-origin',
+            signal: controller.signal
           });
           if (res.ok) {
             const result = await res.json();
             if (result.success === false) throw new Error(result.message || 'Falha no envio');
+            sessionStorage.setItem('pcforge_contact_last_submit', String(Date.now()));
             form.reset();
-            fb.style.display = 'block';
-            fb.className = 'contact-feedback success';
-            fb.innerHTML = '✅ Mensagem enviada! Se este for o primeiro contato, confirme a ativação que chegará no e-mail do responsável.';
+            showFeedback('✅ Mensagem enviada! Se este for o primeiro contato, confirme a ativação que chegará no e-mail do responsável.', 'success');
             btn.textContent = '✅ Enviado';
           } else {
             throw new Error();
           }
         } catch {
-          fb.style.display = 'block';
-          fb.className = 'contact-feedback error';
-          fb.innerHTML = '❌ Erro ao enviar. Tente novamente ou envie direto para <strong>lucas.gomes.rosendo@gmail.com</strong>';
+          showFeedback('❌ Não foi possível enviar. Tente novamente ou escreva para lucas.gomes.rosendo@gmail.com.', 'error');
           btn.disabled = false;
           btn.textContent = '📨 Enviar Mensagem';
+        } finally {
+          window.clearTimeout(timeout);
+          form.dataset.submitting = 'false';
         }
       });
     }

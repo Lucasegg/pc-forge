@@ -119,3 +119,13 @@ pc-forge/
 - Funciona 100% no navegador
 - Sem conta, login ou armazenamento de builds do usuário
 - `localStorage` usado apenas para o cache técnico das estimativas de preço
+
+## Segurança
+
+- Content Security Policy (CSP) com lista mínima de origens
+- jsPDF com versão fixa e Subresource Integrity (SRI)
+- validação estrita de configurações compartilhadas
+- formulário com CAPTCHA, limites e proteção contra repetição
+- análise CodeQL em PRs, na `main` e semanalmente
+- política de divulgação responsável em [SECURITY.md](SECURITY.md)
+- detalhes em [docs/SECURITY-AUDIT.md](docs/SECURITY-AUDIT.md)

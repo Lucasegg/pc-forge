@@ -25,7 +25,7 @@
   --radius3:     20px;
   --shadow:      0 4px 24px rgba(108,99,255,0.12);
   --shadow2:     0 2px 12px rgba(0,0,0,0.4);
-  --font:        'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font:        'Segoe UI', Roboto, Helvetica, Arial, system-ui, sans-serif;
   --transition:  0.2s ease;
 }
 
@@ -51,6 +51,95 @@ a:hover { color: var(--accent); }
 
 ul { list-style: none; }
 img { max-width: 100%; }
+
+/* ─── Loading & Navigation ──────────────────────────────── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+#navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(7,7,15,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid #1f1f3a;
+}
+
+.nav-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: .75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-shrink: 0;
+  padding: .2rem .5rem;
+  color: var(--text);
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font);
+  font-size: 1.2rem;
+  font-weight: 900;
+  letter-spacing: -.02em;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.nav-logo:hover { background: rgba(108,99,255,.1); }
+.nav-logo-icon { font-size: 1.4rem; }
+
+.nav-links {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  gap: .4rem;
+}
+
+.nav-btn {
+  padding: .45rem .9rem;
+  color: #9898b8;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: var(--font);
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.nav-btn:hover {
+  color: var(--text);
+  background: rgba(255,255,255,.04);
+  border-color: #2a2a4a;
+}
+
+.nav-menu { display: none; padding: .4rem .7rem; font-size: 1.2rem; }
+
+.nav-mobile {
+  display: none;
+  flex-direction: column;
+  gap: .2rem;
+  padding: .5rem 1.5rem .75rem;
+  border-top: 1px solid #1f1f3a;
+}
+
+.nav-mobile.open { display: flex; }
+
+@media (max-width: 640px) {
+  .nav-links { display: none; }
+  .nav-menu { display: flex; }
+}
 
 /* ─── Typography ────────────────────────────────────────── */
 h1 { font-size: 2.8rem; font-weight: 800; line-height: 1.1; }
