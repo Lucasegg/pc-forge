@@ -1023,50 +1023,76 @@ const App = (() => {
   function renderFAQ() {
     const faqs = [
       {
-        cat: '🖥️ Sobre o PC Forge',
+        cat: '🚀 Primeiros passos',
         items: [
-          { q: 'O PC Forge é gratuito?', a: 'Sim, 100% gratuito e sem necessidade de cadastro. Basta acessar o site e começar a montar.' },
-          { q: 'Os preços são reais?', a: 'Os preços são estimativas de mercado baseadas em valores médios praticados no Brasil, atualizados automaticamente a cada hora. Podem variar conforme o vendedor, região e promoções do dia. Sempre consulte o preço final na loja antes de comprar.' },
-          { q: 'Com que frequência os preços são atualizados?', a: 'Os preços são recalculados automaticamente a cada 1 hora, refletindo as variações do dólar e do mercado de hardware.' },
-          { q: 'Posso usar o PC Forge no celular?', a: 'Sim! O PC Forge foi desenvolvido com design responsivo e funciona em smartphones, tablets e computadores.' },
-          { q: 'Meus builds salvos ficam guardados para sempre?', a: 'Os builds são salvos no armazenamento local do seu navegador. Eles permanecem enquanto você não limpar os dados do navegador ou acessar de outro dispositivo.' },
+          { q: 'O que é o PC Forge?', a: 'É um assistente que ajuda você a escolher as peças de um computador ou encontrar um notebook de acordo com seu uso e orçamento.' },
+          { q: 'Preciso entender de computadores para usar?', a: 'Não. A montagem guiada faz perguntas simples e explica cada escolha. Quem já conhece hardware pode usar o Modo Avançado.' },
+          { q: 'O PC Forge é gratuito?', a: 'Sim. Você pode montar, comparar, salvar e exportar configurações sem pagar e sem criar uma conta.' },
+          { q: 'Funciona no celular?', a: 'Sim. O site se adapta a celulares, tablets e computadores.' },
+          { q: 'Como começo uma configuração?', a: 'Clique em “Montar”, responda às perguntas sobre uso, nível e orçamento e depois escolha “Gerar minha configuração”.' },
         ]
       },
       {
-        cat: '🔧 Montagem de PCs',
+        cat: '🧭 Montagem guiada e Modo Avançado',
         items: [
-          { q: 'Qual a diferença entre PC Gamer e PC de Escritório?', a: 'O PC Gamer prioriza GPU (placa de vídeo) poderosa para rodar jogos em alta resolução e FPS elevado. O PC de Escritório foca em CPU eficiente, mais RAM e armazenamento rápido para multitarefa e softwares de produtividade.' },
-          { q: 'Preciso de placa de vídeo dedicada para trabalho?', a: 'Depende. Para uso básico (Office, e-mails, reuniões), o gráfico integrado do processador é suficiente. Para edição de vídeo, renderização 3D ou Power BI com grandes bases de dados, uma GPU dedicada acelera muito o trabalho.' },
-          { q: 'Qual a diferença entre DDR4 e DDR5?', a: 'DDR5 é a geração mais nova de memória RAM, com maior velocidade e largura de banda. Porém, exige placa-mãe e processador compatíveis (Intel 12ª gen+ ou AMD AM5). DDR4 ainda é excelente e mais barata.' },
-          { q: 'NVMe é muito melhor que SSD SATA?', a: 'Sim, de 5 a 7 vezes mais rápido em leitura/escrita. Na prática, o sistema operacional e os jogos carregam significativamente mais rápido. Para o mesmo preço, prefira sempre NVMe M.2.' },
-          { q: 'Quantos watts de fonte eu preciso?', a: 'O PC Forge calcula isso automaticamente. A regra geral é: some o TDP do CPU + GPU e multiplique por 1.5 para ter margem de segurança. Nunca use uma fonte no limite — isso reduz a vida útil.' },
-          { q: 'Posso colocar qualquer RAM em qualquer placa-mãe?', a: 'Não. Você precisa verificar: (1) tipo: DDR4 ou DDR5, (2) velocidade suportada, (3) número de slots disponíveis. O PC Forge verifica tudo isso automaticamente no check de compatibilidade.' },
+          { q: 'Qual é a diferença entre os dois modos?', a: 'A montagem guiada recomenda uma configuração completa. No Modo Avançado, você escolhe cada componente manualmente e acompanha preço, consumo e compatibilidade.' },
+          { q: 'O que muda entre uso casual e profissional?', a: 'O uso casual prioriza economia e tarefas do dia a dia. O profissional reserva mais desempenho para programas pesados, multitarefa e trabalhos longos.' },
+          { q: 'Qual é a diferença entre PC gamer e PC para trabalho?', a: 'Jogos normalmente exigem mais da placa de vídeo. Trabalho pode exigir mais processador, memória ou placa de vídeo, dependendo dos programas usados.' },
+          { q: 'Posso trocar uma peça recomendada?', a: 'Sim. Veja as alternativas mais barata e mais potente ou monte tudo manualmente no Modo Avançado.' },
+          { q: 'Por que o site explica a escolha de cada peça?', a: 'Para você entender o papel do componente, a relação com as outras peças e onde seu orçamento está sendo usado.' },
+          { q: 'A configuração já vem montada?', a: 'Não. O PC Forge cria uma recomendação. A compra e a montagem física são feitas por você, uma loja ou um técnico de confiança.' },
         ]
       },
       {
-        cat: '💰 Orçamento e Compras',
+        cat: '🧩 Peças e compatibilidade',
         items: [
-          { q: 'Onde comprar os componentes?', a: 'No Brasil, as principais lojas confiáveis são: Kabum, Pichau, Terabyteshop, Amazon Brasil e Mercado Livre (vendedores oficiais). Compare sempre os preços antes de comprar.' },
-          { q: 'Vale a pena comprar componentes importados?', a: 'Pode ser mais barato em alguns casos, mas considere: imposto de importação (60% para pessoa física), risco de produto sem garantia no Brasil e dificuldade de troca em caso de defeito.' },
-          { q: 'Qual a peça que mais impacta o desempenho em jogos?', a: 'A GPU (placa de vídeo) é responsável por ~70% do desempenho em jogos. Invista mais nela do que no CPU se o objetivo principal for gaming.' },
-          { q: 'Existe uma configuração mínima para trabalho home office?', a: 'Para trabalho básico (Office, Teams, navegação): Intel i3 ou Ryzen 3, 8GB RAM, SSD 240GB. Para algo mais confortável: i5/Ryzen 5, 16GB RAM, SSD 500GB NVMe.' },
+          { q: 'O que significa “compatibilidade OK”?', a: 'Significa que as regras verificadas pelo site não encontraram conflito. Ainda confirme medidas, BIOS, conectores e especificações do fabricante antes de comprar.' },
+          { q: 'Qualquer processador funciona em qualquer placa-mãe?', a: 'Não. O soquete e o chipset precisam aceitar o processador. Alguns modelos também exigem atualização de BIOS.' },
+          { q: 'Posso usar qualquer memória RAM?', a: 'Não. A placa-mãe deve aceitar o tipo correto, como DDR4 ou DDR5. Verifique também capacidade, quantidade de módulos e velocidades suportadas.' },
+          { q: 'Preciso de placa de vídeo dedicada?', a: 'Para navegação, estudos e escritório básico, o vídeo integrado pode bastar. Jogos pesados, edição, 3D e IA normalmente se beneficiam de uma placa dedicada.' },
+          { q: 'Como escolher a potência da fonte?', a: 'A fonte deve suportar o consumo do conjunto com margem de segurança. Dê preferência a modelos de boa qualidade e confira a recomendação do fabricante da placa de vídeo.' },
+          { q: 'Como saber se as peças cabem no gabinete?', a: 'Compare o formato da placa-mãe, o comprimento da placa de vídeo, a altura do cooler e o tamanho do radiador com os limites informados pelo gabinete.' },
+          { q: 'SSD SATA e SSD NVMe são iguais?', a: 'Não. Ambos são rápidos, mas o NVMe costuma oferecer velocidades maiores. Confirme se a placa-mãe possui o encaixe M.2 compatível.' },
         ]
       },
       {
-        cat: '🚀 Performance e Upgrades',
+        cat: '💰 Preços e compra',
         items: [
-          { q: 'O que é gargalo (bottleneck)?', a: 'Gargalo ocorre quando um componente limita o desempenho de outro. Exemplo: uma GPU RTX 4090 com um CPU i3 — o CPU não consegue alimentar a GPU com dados suficientemente rápido, desperdiçando o potencial da placa de vídeo.' },
-          { q: 'Vale a pena overclock?', a: 'Para CPUs desbloqueados (Intel K ou AMD X) com refrigeração adequada, o overclock pode dar 5-15% de ganho de performance sem custo extra. Mas exige cuidados com temperatura e estabilidade.' },
-          { q: 'Qual upgrade tem mais impacto por real gasto?', a: 'Em ordem de impacto: (1) Trocar HDD por SSD NVMe, (2) Adicionar mais RAM (8→16GB), (3) Upgrade de GPU, (4) Upgrade de CPU.' },
-          { q: 'Meu PC esquenta muito. O que fazer?', a: 'Verifique: (1) limpeza de poeira no cooler e filtros, (2) troca da pasta térmica (a cada 2-3 anos), (3) airflow do gabinete (entradas na frente, saída atrás/topo), (4) cooler inadequado para o TDP do CPU.' },
+          { q: 'Os preços mostrados são os valores das lojas em tempo real?', a: 'Não. São estimativas para ajudar no planejamento. O valor final pode mudar por loja, região, estoque, frete e promoção.' },
+          { q: 'Por que o preço estimado pode estar diferente?', a: 'O mercado muda com frequência e cada vendedor pratica um valor. Compare o modelo exato em lojas confiáveis antes de fechar a compra.' },
+          { q: 'O orçamento inclui monitor e acessórios?', a: 'A configuração principal considera os componentes exibidos no resultado. Monitor, teclado, mouse, sistema operacional e montagem só estão incluídos quando aparecerem na lista.' },
+          { q: 'Devo comprar todas as peças na mesma loja?', a: 'Não é obrigatório. Compare preço, frete, prazo, garantia e reputação. Comprar em menos lojas pode facilitar o suporte e reduzir o frete.' },
+          { q: 'Posso comprar peças usadas?', a: 'Pode, mas teste o produto, peça comprovante, verifique a garantia e avalie o histórico de uso. Tenha cuidado especial com fonte, armazenamento e placa de vídeo.' },
+        ]
+      },
+      {
+        cat: '📊 Desempenho e upgrades',
+        items: [
+          { q: 'O que é gargalo?', a: 'É quando uma peça limita o desempenho das outras. Um conjunto equilibrado aproveita melhor o dinheiro e evita componentes muito fortes ao lado de outros fracos.' },
+          { q: 'A estimativa de desempenho é garantida?', a: 'Não. Ela é uma referência. O resultado real varia com resolução, qualidade gráfica, programa, drivers, temperatura e atualizações.' },
+          { q: 'Qual upgrade devo fazer primeiro?', a: 'Depende do uso. SSD melhora a agilidade, mais RAM ajuda na multitarefa, placa de vídeo melhora jogos e 3D, e processador ajuda em tarefas de cálculo.' },
+          { q: 'Como manter o PC frio?', a: 'Use gabinete ventilado, organize os cabos, instale ventoinhas corretamente e mantenha filtros e coolers limpos. Observe as temperaturas durante o uso.' },
+          { q: 'Vale a pena fazer overclock?', a: 'Só para quem entende os riscos e possui peças e refrigeração adequadas. Para a maioria das pessoas, usar as configurações padrão é mais simples e seguro.' },
         ]
       },
       {
         cat: '💻 Notebooks',
         items: [
-          { q: 'Vale mais a pena notebook ou PC desktop?', a: 'Desktop: mais potente por real, fácil de upgradear, melhor refrigeração. Notebook: portabilidade, ocupa menos espaço, tudo em um. Se não precisa carregar, desktop sempre entrega mais performance pelo mesmo investimento.' },
-          { q: 'Por que notebooks gamers têm bateria tão curta?', a: 'GPUs dedicadas consomem muita energia. Em jogos, um notebook gamer pode consumir 100-200W, esgotando a bateria em 1-3 horas. Sempre use tomada para gaming.' },
-          { q: 'Posso colocar mais RAM em um notebook?', a: 'Depende do modelo. Muitos notebooks modernos têm RAM soldada na placa (não upgradável). Verifique as especificações antes de comprar se isso for importante para você.' },
+          { q: 'É melhor comprar notebook ou desktop?', a: 'Notebook oferece mobilidade e ocupa menos espaço. Desktop costuma entregar mais desempenho pelo preço e permite mais upgrades.' },
+          { q: 'Notebook gamer funciona bem fora da tomada?', a: 'Para jogos, o melhor desempenho normalmente exige o carregador conectado. Na bateria, a potência é reduzida e a autonomia tende a ser menor.' },
+          { q: 'Todo notebook permite aumentar RAM e SSD?', a: 'Não. Alguns possuem memória soldada ou poucos espaços livres. Consulte o manual e a página do fabricante do modelo exato.' },
+          { q: 'Por que dois notebooks com a mesma placa de vídeo podem render diferente?', a: 'A potência configurada, a refrigeração, o processador e a memória mudam entre modelos. O nome da placa sozinho não define todo o desempenho.' },
+        ]
+      },
+      {
+        cat: '💾 Builds, PDF e privacidade',
+        items: [
+          { q: 'Onde ficam os builds que eu salvo?', a: 'Eles ficam no armazenamento do navegador usado. Não são enviados para uma conta ou nuvem.' },
+          { q: 'Por que meu build não apareceu em outro aparelho?', a: 'Porque os builds salvos permanecem somente naquele navegador e dispositivo. Para levar a configuração, use Compartilhar ou Baixar PDF.' },
+          { q: 'O que aparece no PDF?', a: 'O PDF reúne o resumo, as peças, os preços estimados e a explicação das escolhas para facilitar consulta e orçamento.' },
+          { q: 'Como compartilho uma configuração?', a: 'No resultado, clique em “Compartilhar” e envie o link gerado. Quem abrir verá aquela configuração.' },
+          { q: 'O site coleta meus dados pessoais?', a: 'A montagem não exige cadastro. O formulário de contato envia apenas os dados que você preencher voluntariamente.' },
+          { q: 'Posso perder os builds salvos?', a: 'Sim. Limpar os dados do navegador, usar modo anônimo ou trocar de aparelho pode removê-los. Exporte os builds importantes em PDF.' },
         ]
       }
     ];
@@ -1084,22 +1110,28 @@ const App = (() => {
       </div>
 
       <div class="faq-list" id="faq-list">
-        ${faqs.map(section => `
+        ${faqs.map((section, sectionIndex) => `
           <div class="faq-section">
             <h3 class="faq-cat">${section.cat}</h3>
             ${section.items.map((item, i) => `
-              <div class="faq-item" data-q="${item.q.toLowerCase()}">
-                <button class="faq-question" data-faq="${section.cat}-${i}">
+              <div class="faq-item">
+                <button class="faq-question" data-faq="${sectionIndex}-${i}"
+                        aria-expanded="false" aria-controls="faq-${sectionIndex}-${i}">
                   <span>${item.q}</span>
                   <span class="faq-arrow">▼</span>
                 </button>
-                <div class="faq-answer" id="faq-${section.cat}-${i}">
+                <div class="faq-answer" id="faq-${sectionIndex}-${i}" role="region">
                   <p>${item.a}</p>
                 </div>
               </div>
             `).join('')}
           </div>
         `).join('')}
+        <div class="faq-empty" id="faq-empty" style="display:none">
+          <span>🔎</span>
+          <h3>Nenhuma resposta encontrada</h3>
+          <p>Tente buscar por outra palavra ou fale conosco.</p>
+        </div>
       </div>
 
       <div class="faq-footer">
@@ -1144,8 +1176,15 @@ const App = (() => {
         const answer = document.getElementById(id);
         const isOpen = answer.classList.contains('open');
         document.querySelectorAll('.faq-answer.open').forEach(a => a.classList.remove('open'));
-        document.querySelectorAll('.faq-question.open').forEach(b => b.classList.remove('open'));
-        if (!isOpen) { answer.classList.add('open'); btn.classList.add('open'); }
+        document.querySelectorAll('.faq-question.open').forEach(b => {
+          b.classList.remove('open');
+          b.setAttribute('aria-expanded', 'false');
+        });
+        if (!isOpen) {
+          answer.classList.add('open');
+          btn.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
       });
     });
 
@@ -1153,14 +1192,21 @@ const App = (() => {
     const faqSearch = document.getElementById('faq-search');
     if (faqSearch) {
       faqSearch.addEventListener('input', () => {
-        const q = faqSearch.value.toLowerCase();
+        const normalize = text => text.toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
+        const q = normalize(faqSearch.value.trim());
+        let totalVisible = 0;
         document.querySelectorAll('.faq-item').forEach(item => {
-          item.style.display = item.dataset.q.includes(q) ? '' : 'none';
+          const matches = normalize(item.textContent).includes(q);
+          item.style.display = matches ? '' : 'none';
+          if (matches) totalVisible++;
         });
         document.querySelectorAll('.faq-section').forEach(sec => {
           const visible = [...sec.querySelectorAll('.faq-item')].some(i => i.style.display !== 'none');
           sec.style.display = visible ? '' : 'none';
         });
+        document.getElementById('faq-empty').style.display = totalVisible ? 'none' : 'grid';
       });
     }
 
