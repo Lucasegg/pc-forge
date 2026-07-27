@@ -6,14 +6,12 @@ const App = (() => {
 
   // ─── State ───────────────────────────────────────────────
   let state = {
-    view: 'home',           // home | wizard | result | notebook | manual | saved | compare | contact | faq
+    view: 'home',           // home | wizard | result | notebook | manual | contact | faq
     wizardStep: 1,
     totalSteps: 4,
     answers: {},
     currentBuild: null,
     currentNotebook: null,
-    savedBuilds: [],
-    compareBuilds: [],
     manualSelections: {},
     darkMode: true,
     userLevel: 'beginner',  // beginner | advanced
@@ -31,8 +29,6 @@ const App = (() => {
       if (state.view === 'home' || state.view === 'manual') render();
       updatePriceBanner();
     }, 60 * 60 * 1000);
-
-    state.savedBuilds = BuildEngine.Storage.getAll();
 
     // Check for shared build in URL
     const params = new URLSearchParams(window.location.search);
@@ -67,8 +63,6 @@ const App = (() => {
       case 'result':   app.innerHTML = renderResult(); break;
       case 'notebook': app.innerHTML = renderNotebook(); break;
       case 'manual':   app.innerHTML = renderManual(); break;
-      case 'saved':    app.innerHTML = renderSaved(); break;
-      case 'compare':  app.innerHTML = renderCompare(); break;
       case 'contact':  app.innerHTML = renderContact(); break;
       case 'faq':      app.innerHTML = renderFAQ(); break;
       default:         app.innerHTML = renderHome();
@@ -79,7 +73,6 @@ const App = (() => {
 
   // ─── HOME ────────────────────────────────────────────────
   function renderHome() {
-    const saved = BuildEngine.Storage.getAll();
     return `
     <div class="page home-page">
       <div class="hero">
@@ -124,17 +117,6 @@ const App = (() => {
           `).join('')}
         </div>
       </div>
-
-      ${saved.length > 0 ? `
-      <div class="saved-preview-section">
-        <div class="section-header">
-          <h2 class="section-title">Seus Builds Salvos</h2>
-          <button class="btn btn-outline btn-sm" id="btn-all-saved">Ver todos</button>
-        </div>
-        <div class="builds-row">
-          ${saved.slice(0, 3).map(b => renderSavedBuildCard(b, true)).join('')}
-        </div>
-      </div>` : ''}
     </div>`;
   }
 
@@ -294,8 +276,6 @@ const App = (() => {
     const b = state.currentBuild;
     if (!b) return '<div class="page"><p>Build não encontrado.</p></div>';
     const advanced = state.userLevel === 'advanced' || state.answers?.userLevel === 'advanced';
-    const isSaved = BuildEngine.Storage.getAll().some(s => s.id === b.id);
-
     return `
     <div class="page result-page">
       <div class="result-header">
@@ -305,9 +285,6 @@ const App = (() => {
           <span class="perf-badge badge-${b.perfLevel?.toLowerCase().replace('ó','o').replace('â','a').replace('é','e')}">${b.perfLevel}</span>
         </div>
         <div class="result-actions-top">
-          <button class="btn btn-outline btn-sm ${isSaved ? 'saved' : ''}" id="btn-save-build">
-            ${isSaved ? '✅ Salvo' : '💾 Salvar'}
-          </button>
           <button class="btn btn-pdf btn-sm" id="btn-download-pdf">📄 Baixar PDF</button>
           <button class="btn btn-outline btn-sm" id="btn-share-build">🔗 Compartilhar</button>
           <button class="btn btn-outline btn-sm" id="btn-new-build">🔄 Novo Build</button>
@@ -403,7 +380,6 @@ const App = (() => {
       <!-- Bottom actions -->
       <div class="result-footer">
         <button class="btn btn-outline" id="btn-customize">⚙️ Personalizar Build</button>
-        <button class="btn btn-outline" id="btn-add-compare">📊 Comparar Builds</button>
         <button class="btn btn-primary" id="btn-new-build-2">🔄 Novo Build</button>
       </div>
     </div>`;
@@ -805,127 +781,6 @@ const App = (() => {
     </div>`;
   }
 
-  // ─── SAVED BUILDS ────────────────────────────────────────
-  function renderSaved() {
-    const builds = BuildEngine.Storage.getAll();
-    return `
-    <div class="page saved-page">
-      <div class="page-header">
-        <button class="btn btn-ghost" id="btn-back-home">← Início</button>
-        <h2>💾 Meus Builds Salvos</h2>
-        ${builds.length > 0 ? `<button class="btn btn-outline btn-sm btn-danger" id="btn-clear-all">🗑️ Limpar Todos</button>` : ''}
-      </div>
-
-      ${builds.length === 0 ? `
-      <div class="empty-state">
-        <div class="empty-icon">💾</div>
-        <h3>Nenhum build salvo ainda</h3>
-        <p>Monte seu primeiro PC e salve para acessar depois!</p>
-        <button class="btn btn-primary" id="btn-start-new">🚀 Começar</button>
-      </div>` : `
-      <div class="builds-grid">
-        ${builds.map(b => renderSavedBuildCard(b, false)).join('')}
-      </div>
-      ${builds.length >= 2 ? `
-      <div class="compare-bar">
-        <p>💡 Selecione 2 builds para comparar</p>
-        <button class="btn btn-primary" id="btn-compare-selected" disabled>📊 Comparar Selecionados</button>
-      </div>` : ''}
-      `}
-    </div>`;
-  }
-
-  function renderSavedBuildCard(b, compact = false) {
-    const comps = b.components || {};
-    return `
-    <div class="saved-card ${compact ? 'compact' : ''}" data-build-id="${b.id}">
-      <div class="saved-card-header">
-        <div>
-          <div class="saved-card-name">${b.name}</div>
-          <div class="saved-card-date">${new Date(b.createdAt).toLocaleDateString('pt-BR')}</div>
-        </div>
-        <div class="saved-card-price">${formatPrice(b.totalPrice || 0)}</div>
-      </div>
-      ${!compact ? `
-      <div class="saved-card-comps">
-        ${comps.cpu ? `<span>🔷 ${comps.cpu.name}</span>` : ''}
-        ${comps.gpu ? `<span>🟣 ${comps.gpu.name}</span>` : ''}
-        ${comps.ram ? `<span>🟩 ${comps.ram.capacityGB}GB ${comps.ram.type}</span>` : ''}
-      </div>` : ''}
-      <div class="saved-card-footer">
-        ${b.perfLevel ? `<span class="perf-badge badge-${b.perfLevel.toLowerCase().replace(/[óâé]/g, c => ({ó:'o',â:'a',é:'e'})[c])}">${b.perfLevel}</span>` : ''}
-        <div class="saved-actions">
-          <button class="btn btn-outline btn-xs btn-load" data-id="${b.id}">📂 Abrir</button>
-          ${!compact ? `
-          <button class="btn btn-outline btn-xs btn-compare-add" data-id="${b.id}">📊</button>
-          <button class="btn btn-outline btn-xs btn-delete" data-id="${b.id}">🗑️</button>` : ''}
-        </div>
-      </div>
-    </div>`;
-  }
-
-  // ─── COMPARE ─────────────────────────────────────────────
-  function renderCompare() {
-    const builds = state.compareBuilds;
-    if (builds.length < 2) {
-      return `
-      <div class="page compare-page">
-        <div class="page-header">
-          <button class="btn btn-ghost" id="btn-back-home">← Início</button>
-          <h2>📊 Comparar Builds</h2>
-        </div>
-        <div class="empty-state">
-          <p>Selecione ao menos 2 builds salvos para comparar.</p>
-          <button class="btn btn-primary" id="btn-go-saved">Ver Meus Builds</button>
-        </div>
-      </div>`;
-    }
-
-    const rows = [
-      { label: 'Nome', fn: b => b.name },
-      { label: '💰 Preço Total', fn: b => formatPrice(b.totalPrice) },
-      { label: '📊 Performance', fn: b => b.perfLevel || '—' },
-      { label: '🔷 CPU', fn: b => b.components?.cpu?.name || '—' },
-      { label: '🟣 GPU', fn: b => b.components?.gpu?.name || '—' },
-      { label: '🟩 RAM', fn: b => b.components?.ram ? `${b.components.ram.capacityGB}GB ${b.components.ram.type}` : '—' },
-      { label: '💾 Storage', fn: b => b.components?.storage?.name || '—' },
-      { label: '⚡ Fonte', fn: b => b.components?.psu?.name || '—' },
-      { label: '⚡ Consumo', fn: b => `${b.powerUsage || '?'}W` },
-      { label: '🧩 Compatível', fn: b => b.compatibility?.valid ? '✅ Sim' : '⚠️ Aviso' },
-    ];
-
-    return `
-    <div class="page compare-page">
-      <div class="page-header">
-        <button class="btn btn-ghost" id="btn-back-home">← Início</button>
-        <h2>📊 Comparação de Builds</h2>
-      </div>
-
-      <div class="compare-table-wrap">
-        <table class="compare-table">
-          <thead>
-            <tr>
-              <th>Componente</th>
-              ${builds.map(b => `<th>${b.name}</th>`).join('')}
-            </tr>
-          </thead>
-          <tbody>
-            ${rows.map(row => `
-              <tr>
-                <td class="compare-label">${row.label}</td>
-                ${builds.map(b => `<td>${row.fn(b)}</td>`).join('')}
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-
-      <div class="compare-footer">
-        <button class="btn btn-outline" id="btn-go-saved">← Voltar aos Builds</button>
-      </div>
-    </div>`;
-  }
-
   // ─── CONTACT PAGE ────────────────────────────────────────
   function renderContact() {
     return `
@@ -1027,7 +882,8 @@ const App = (() => {
         items: [
           { q: 'O que é o PC Forge?', a: 'É um assistente que ajuda você a escolher as peças de um computador ou encontrar um notebook de acordo com seu uso e orçamento.' },
           { q: 'Preciso entender de computadores para usar?', a: 'Não. A montagem guiada faz perguntas simples e explica cada escolha. Quem já conhece hardware pode usar o Modo Avançado.' },
-          { q: 'O PC Forge é gratuito?', a: 'Sim. Você pode montar, comparar, salvar e exportar configurações sem pagar e sem criar uma conta.' },
+          { q: 'O PC Forge é gratuito?', a: 'Sim. Você pode montar e exportar configurações sem pagar e sem criar uma conta.' },
+          { q: 'Preciso criar uma conta ou fazer login?', a: 'Não. O PC Forge funciona como um assistente e não exige conta, login ou senha.' },
           { q: 'Funciona no celular?', a: 'Sim. O site se adapta a celulares, tablets e computadores.' },
           { q: 'Como começo uma configuração?', a: 'Clique em “Montar”, responda às perguntas sobre uso, nível e orçamento e depois escolha “Gerar minha configuração”.' },
         ]
@@ -1085,14 +941,14 @@ const App = (() => {
         ]
       },
       {
-        cat: '💾 Builds, PDF e privacidade',
+        cat: '📄 PDF, compartilhamento e privacidade',
         items: [
-          { q: 'Onde ficam os builds que eu salvo?', a: 'Eles ficam no armazenamento do navegador usado. Não são enviados para uma conta ou nuvem.' },
-          { q: 'Por que meu build não apareceu em outro aparelho?', a: 'Porque os builds salvos permanecem somente naquele navegador e dispositivo. Para levar a configuração, use Compartilhar ou Baixar PDF.' },
+          { q: 'Como salvo minha configuração?', a: 'Ao concluir, clique em “Baixar PDF”. O arquivo será salvo no seu dispositivo com as peças, os preços estimados e as explicações.' },
+          { q: 'O site mantém um histórico das minhas configurações?', a: 'Não. O PC Forge não possui conta nem área de builds salvos. Baixe o PDF antes de iniciar uma nova configuração.' },
           { q: 'O que aparece no PDF?', a: 'O PDF reúne o resumo, as peças, os preços estimados e a explicação das escolhas para facilitar consulta e orçamento.' },
           { q: 'Como compartilho uma configuração?', a: 'No resultado, clique em “Compartilhar” e envie o link gerado. Quem abrir verá aquela configuração.' },
           { q: 'O site coleta meus dados pessoais?', a: 'A montagem não exige cadastro. O formulário de contato envia apenas os dados que você preencher voluntariamente.' },
-          { q: 'Posso perder os builds salvos?', a: 'Sim. Limpar os dados do navegador, usar modo anônimo ou trocar de aparelho pode removê-los. Exporte os builds importantes em PDF.' },
+          { q: 'Preciso informar senha para baixar o PDF?', a: 'Não. O download é feito diretamente pelo navegador e não exige login, senha ou cadastro.' },
         ]
       }
     ];
@@ -1248,7 +1104,7 @@ const App = (() => {
   }
 
   async function handleClick(e) {
-    const t = e.target.closest('[id], [data-answer], [data-comp], .alt-btn, .btn-load, .btn-delete, [data-nb-select], [data-id]');
+    const t = e.target.closest('[id], [data-answer], [data-comp], .alt-btn, [data-nb-select], [data-id]');
     if (!t) return;
 
     // Option cards (wizard)
@@ -1298,13 +1154,6 @@ const App = (() => {
         if (!state.answers.userLevel) return;
         generateBuild();
         return;
-      case 'btn-save-build':
-        if (state.currentBuild) {
-          BuildEngine.Storage.save(state.currentBuild);
-          state.savedBuilds = BuildEngine.Storage.getAll();
-          render();
-        }
-        return;
       case 'btn-download-pdf':
         if (state.currentBuild) {
           await downloadPDF(t, () => PDFExporter.exportBuild(state.currentBuild));
@@ -1331,17 +1180,6 @@ const App = (() => {
         populateManualFromBuild(state.currentBuild);
         navigate('manual');
         return;
-      case 'btn-add-compare':
-        if (state.currentBuild) {
-          BuildEngine.Storage.save(state.currentBuild);
-          state.savedBuilds = BuildEngine.Storage.getAll();
-        }
-        navigate('saved');
-        return;
-      case 'btn-all-saved':
-      case 'btn-go-saved':
-        navigate('saved');
-        return;
       case 'btn-build-manual':
         buildManual();
         return;
@@ -1349,22 +1187,6 @@ const App = (() => {
         state.answers = {};
         state.wizardStep = 1;
         navigate('wizard');
-        return;
-      case 'btn-clear-all':
-        if (confirm('Apagar todos os builds salvos?')) {
-          BuildEngine.Storage.clear();
-          state.savedBuilds = [];
-          state.compareBuilds = [];
-          render();
-        }
-        return;
-      case 'btn-start-new':
-        state.answers = {};
-        state.wizardStep = 1;
-        navigate('wizard');
-        return;
-      case 'btn-compare-selected':
-        navigate('compare');
         return;
     }
 
@@ -1385,48 +1207,6 @@ const App = (() => {
           showToast(`${newComp.name} aplicado!`);
           render();
         }
-      }
-      return;
-    }
-
-    // Load saved build
-    if (t.classList.contains('btn-load')) {
-      const id = t.dataset.id;
-      const build = BuildEngine.Storage.getAll().find(b => b.id === id);
-      if (build) {
-        state.currentBuild = build;
-        navigate('result');
-      }
-      return;
-    }
-
-    // Delete saved build
-    if (t.classList.contains('btn-delete')) {
-      const id = t.dataset.id;
-      if (confirm('Apagar este build?')) {
-        BuildEngine.Storage.delete(id);
-        state.savedBuilds = BuildEngine.Storage.getAll();
-        render();
-      }
-      return;
-    }
-
-    // Compare add
-    if (t.classList.contains('btn-compare-add')) {
-      const id = t.dataset.id;
-      const build = BuildEngine.Storage.getAll().find(b => b.id === id);
-      if (build) {
-        const idx = state.compareBuilds.findIndex(b => b.id === id);
-        if (idx >= 0) {
-          state.compareBuilds.splice(idx, 1);
-        } else if (state.compareBuilds.length < 3) {
-          state.compareBuilds.push(build);
-        }
-        if (state.compareBuilds.length >= 2) {
-          document.getElementById('btn-compare-selected')?.removeAttribute('disabled');
-        }
-        showToast(state.compareBuilds.some(b => b.id === id) ? 'Adicionado à comparação' : 'Removido da comparação');
-        t.classList.toggle('active');
       }
       return;
     }
