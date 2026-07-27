@@ -98,6 +98,22 @@ const App = (() => {
         </div>
       </div>
 
+      <aside class="home-notice" aria-labelledby="home-notice-title">
+        <div class="home-notice-icon" aria-hidden="true">💡</div>
+        <div class="home-notice-content">
+          <span class="home-notice-label">Importante</span>
+          <h2 id="home-notice-title">Somos seu assistente de escolha</h2>
+          <p>
+            O PC Forge ajuda você a entender e planejar sua configuração.
+            No momento, não vendemos computadores, notebooks ou componentes.
+            Lojas, profissionais e empresas interessados em colaborar são muito bem-vindos.
+          </p>
+        </div>
+        <button class="btn btn-outline home-notice-action" id="btn-go-contact">
+          🤝 Quero ser parceiro
+        </button>
+      </aside>
+
       <div class="features-section">
         <h2 class="section-title">Por que PC Forge?</h2>
         <div class="features-grid">
