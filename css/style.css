@@ -373,6 +373,66 @@ small { font-size: .8rem; color: var(--text3); }
   50% { opacity: 1; box-shadow: 0 0 12px currentColor; }
 }
 
+/* ─── Home Notice ───────────────────────────────────────── */
+.home-notice {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.2rem;
+  margin: 1rem 0 3rem;
+  padding: 1.35rem 1.5rem;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(108,99,255,.12), rgba(0,212,255,.04)),
+    var(--card);
+  border: 1px solid rgba(108,99,255,.35);
+  border-radius: var(--radius);
+}
+
+.home-notice::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--accent), var(--accent2));
+}
+
+.home-notice-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  font-size: 1.45rem;
+  background: rgba(108,99,255,.14);
+  border: 1px solid rgba(108,99,255,.25);
+  border-radius: 14px;
+}
+
+.home-notice-label {
+  display: block;
+  margin-bottom: .25rem;
+  color: var(--accent);
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.home-notice h2 {
+  margin-bottom: .35rem;
+  font-size: 1.05rem;
+}
+
+.home-notice p {
+  max-width: 720px;
+  color: var(--text2);
+  font-size: .86rem;
+  line-height: 1.6;
+}
+
+.home-notice-action { white-space: nowrap; }
+
 /* ─── Features Grid ─────────────────────────────────────── */
 .features-section { margin: 4rem 0; }
 
@@ -1399,6 +1459,12 @@ small { font-size: .8rem; color: var(--text3); }
   .contact-layout { grid-template-columns: 1fr; }
   .faq-footer { align-items: stretch; flex-direction: column; }
   .faq-footer .btn { justify-content: center; }
+  .home-notice { grid-template-columns: auto 1fr; }
+  .home-notice-action {
+    width: 100%;
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1408,4 +1474,8 @@ small { font-size: .8rem; color: var(--text3); }
   .hero-actions { flex-direction: column; }
   .hero-actions .btn { width: 100%; justify-content: center; }
   .summary-bar { grid-template-columns: 1fr; }
+  .home-notice {
+    grid-template-columns: 1fr;
+    padding: 1.25rem;
+  }
 }
